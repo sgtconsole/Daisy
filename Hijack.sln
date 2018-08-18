@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hijack", "Hijack\Hijack.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hijack.Sample", "Hijack.Sample\Hijack.Sample.csproj", "{452B8E8D-1E1A-4FF6-9235-FAF033A86DF7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bootstrapper", "Bootstrapper\Bootstrapper.vcxproj", "{25750B19-1BF6-476E-887F-1E27464F1183}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hijack.Launcher", "Hijack.Launcher\Hijack.Launcher.csproj", "{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,26 @@ Global
 		{452B8E8D-1E1A-4FF6-9235-FAF033A86DF7}.Release|x64.Build.0 = Release|x64
 		{452B8E8D-1E1A-4FF6-9235-FAF033A86DF7}.Release|x86.ActiveCfg = Release|x86
 		{452B8E8D-1E1A-4FF6-9235-FAF033A86DF7}.Release|x86.Build.0 = Release|x86
+		{25750B19-1BF6-476E-887F-1E27464F1183}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{25750B19-1BF6-476E-887F-1E27464F1183}.Debug|x64.ActiveCfg = Debug|Win32
+		{25750B19-1BF6-476E-887F-1E27464F1183}.Debug|x86.ActiveCfg = Debug|Win32
+		{25750B19-1BF6-476E-887F-1E27464F1183}.Debug|x86.Build.0 = Debug|Win32
+		{25750B19-1BF6-476E-887F-1E27464F1183}.Release|Any CPU.ActiveCfg = Release|Win32
+		{25750B19-1BF6-476E-887F-1E27464F1183}.Release|x64.ActiveCfg = Release|Win32
+		{25750B19-1BF6-476E-887F-1E27464F1183}.Release|x86.ActiveCfg = Release|Win32
+		{25750B19-1BF6-476E-887F-1E27464F1183}.Release|x86.Build.0 = Release|Win32
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Debug|x64.Build.0 = Debug|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Debug|x86.Build.0 = Debug|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Release|x64.ActiveCfg = Release|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Release|x64.Build.0 = Release|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Release|x86.ActiveCfg = Release|Any CPU
+		{E1A5D7D7-3B40-46EC-B376-4C52C8BAAC94}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

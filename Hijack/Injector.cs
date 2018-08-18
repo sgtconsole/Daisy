@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -8,6 +9,16 @@ namespace Hijack
 {
     public partial class Injector
     {
+        private readonly int _processId;
+        private readonly IntPtr _nullPtr = (IntPtr)null;
+        private IntPtr _targetProcessHandle;
+        
+        public Injector(int processId)
+        {
+            _processId = processId;
+            LoadBootstrapper();
+        }
+
         private string BootstrapperName
         {
             get
@@ -17,99 +28,88 @@ namespace Hijack
             }
         }
 
-        public void Inject(int processId)
+        private IntPtr WriteString(IntPtr processHandle, string data, Encoding encoding)
         {
-            
-            var kernel32Handle = GetModuleHandle("kernel32.dll");
-            var targetProcessHandle = OpenProcess(ProcessAccessFlags.All, false, processId);
-            var nullPtr = (IntPtr) null;
+            var encodedData = encoding.GetBytes(data);
+            var encodedDataLength = (uint)((encodedData.Length + 1) * Marshal.SizeOf(typeof(char)));
 
-            if (targetProcessHandle == nullPtr)
-                throw new Exception("Open process failed");
-
-            var boostrapperNameData = Encoding.ASCII.GetBytes(BootstrapperName);
-            var bootstrapperLength = (uint) ((BootstrapperName.Length + 1) * Marshal.SizeOf(typeof(char)));
-            
-            var bootstrapperNameArgumentAllocation = VirtualAllocEx(
-                targetProcessHandle,
-                nullPtr,
-                bootstrapperLength,
+            var allocation = VirtualAllocEx(
+                processHandle,
+                _nullPtr,
+                encodedDataLength,
                 AllocationType.Reserve | AllocationType.Commit,
                 MemoryProtection.ReadWrite);
 
-            IntPtr bytesWritten;
             WriteProcessMemory(
-                targetProcessHandle,
-                bootstrapperNameArgumentAllocation,
-                boostrapperNameData,
-                (int) bootstrapperLength,
-                out bytesWritten);
+                processHandle,
+                allocation,
+                encodedData,
+                (int)encodedDataLength,
+                out _);
+
+            return allocation;
+        }
+
+        private void LoadBootstrapper()
+        {
+            
+            var kernel32Handle = GetModuleHandle("kernel32.dll");
+            _targetProcessHandle = OpenProcess(ProcessAccessFlags.All, false, _processId);
+            
+            if (_targetProcessHandle == _nullPtr)
+                throw new Exception("Open process failed");
+
+            var bootstrapperNameArgumentAllocation = WriteString(_targetProcessHandle, BootstrapperName, Encoding.ASCII);
 
             var loadLibraryDelegate =  GetProcAddress(kernel32Handle, "LoadLibraryA");
 
             var loadLibraryThread = CreateRemoteThread(
-                targetProcessHandle,
-                nullPtr,
+                _targetProcessHandle,
+                _nullPtr,
                 0,
                 loadLibraryDelegate,
-                bootstrapperNameArgumentAllocation, 0, nullPtr
+                bootstrapperNameArgumentAllocation, 0, _nullPtr
             );
             
             WaitForSingleObject(loadLibraryThread, 0xFFFFFFFF);
             IntPtr exitCode;
             GetExitCodeThread(loadLibraryThread, out exitCode);
-            VirtualFreeEx(targetProcessHandle, bootstrapperNameArgumentAllocation, 0, AllocationType.Release);
-
-            var proc = Process.GetProcessById(processId);
-            ProcessModule foundModule;
-            foreach (ProcessModule mod in proc.Modules)
-            {
-                if (!mod.ModuleName.ToLower().Contains("bootstapper.dll")) continue;
-
-                foundModule = mod;
-                break;
-            }
-            
-
+            VirtualFreeEx(_targetProcessHandle, bootstrapperNameArgumentAllocation, 0, AllocationType.Release);
         }
 
 
-        public void Invoke()
+        public void Invoke(string assemblyPath)
         {
             const string bootstrapperEntryPoint = "LoadManagedProject";
 
-            unsafe
-            {
-                var handle = LoadLibraryExA(BootstrapperName, IntPtr.Zero, LoadLibraryFlags.DontResolveDllReferences);
-                var dosHeader = Marshal.PtrToStructure<IMAGE_DOS_HEADER>(handle);
-                var ntHeader = Marshal.PtrToStructure<IMAGE_NT_HEADERS32>(IntPtr.Add(handle, dosHeader.e_lfanew));
-                var exportDirectory = Marshal.PtrToStructure<IMAGE_EXPORT_DIRECTORY>(IntPtr.Add(handle, (int)ntHeader.OptionalHeader.ExportTable.VirtualAddress));
+            var procOffset = GetProcedureOffset(BootstrapperName, bootstrapperEntryPoint);
 
-                var nameRef = (uint*)new IntPtr(handle.ToInt32() + exportDirectory.AddressOfNames);
-                var ordinal = (ushort*)new IntPtr(handle.ToInt32() + exportDirectory.AddressOfNameOrdinals);
+            var mod = Process.GetProcessById(_processId).Modules.Cast<ProcessModule>()
+                .Single(pm => pm.ModuleName.Contains("bootstrapper"));
+           
+            var procAddress = IntPtr.Add(mod.BaseAddress, procOffset);
+            var argumentAllocation = WriteString(_targetProcessHandle, assemblyPath,Encoding.Unicode);
 
-                for (var i = 0; i < exportDirectory.NumberOfNames; i++, nameRef++, ordinal++)
-                {
-                    var str = new IntPtr(handle.ToInt32() + (int)(*nameRef));
-                    var functionName = Marshal.PtrToStringAnsi(str);
-                    if (functionName == bootstrapperEntryPoint)
-                    {
-                        var tmpaa = (UInt32*)(handle.ToInt32() + (exportDirectory.AddressOfFunctions + (*ordinal * 4)));
-                        var addr = (UInt32)((handle.ToInt32()) + (*tmpaa));
+            var loadLibraryThread = CreateRemoteThread(
+                _targetProcessHandle,
+                _nullPtr,
+                0,
+                procAddress,
+                argumentAllocation, 0, _nullPtr
+            );
 
+            WaitForSingleObject(loadLibraryThread, 0xFFFFFFFF);
+            GetExitCodeThread(loadLibraryThread, out _);
+            VirtualFreeEx(_targetProcessHandle, argumentAllocation, 0, AllocationType.Release);
 
-
-                    }
-                }
-                
-            }
-
-          
         }
 
-
-
-
-
+        private int GetProcedureOffset(string libName, string procedureName)
+        {
+            var handle = LoadLibrary(libName);
+            var entryPoint = GetProcAddress(handle, procedureName);
+            return (int)entryPoint - (int)handle;
+        }
+        
     }
 }

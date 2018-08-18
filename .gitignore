@@ -2,3 +2,7 @@ Hijack.Sample/bin/
 Hijack.Sample/obj/
 Hijack/bin/
 Hijack/obj/
+.vs/
+Bootstrapper/Debug/
+Hijack.Launcher/bin/
+Hijack.Launcher/obj/

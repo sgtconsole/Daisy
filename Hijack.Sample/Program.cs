@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace Hijack.Sample
 {
@@ -7,11 +9,16 @@ namespace Hijack.Sample
     {
         static void Main(string[] args)
         {
-            var injector = new Injector();
-            //var notepadProcess = Process.GetProcessesByName("notepad++").FirstOrDefault();
-            //if (notepadProcess != null) injector.Inject(notepadProcess.Id);
-            injector.Invoke();
+     
 
+        }
+
+        static int EntryPoint(string jeff)
+        {
+            //throw new ApplicationException("nop");
+
+            MessageBox.Show($"Fuck yeah from {Process.GetCurrentProcess().MainWindowTitle}");
+            return 1;
         }
     }
 }
