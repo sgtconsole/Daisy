@@ -1,12 +1,8 @@
-Hijack.Sample/bin/
-Hijack.Sample/obj/
-Hijack/bin/
-Hijack/obj/
 .vs/
-Bootstrapper/Debug/
-Hijack.Launcher/bin/
-Hijack.Launcher/obj/
 Bootstrap/Debug/
-Daisy.Launcher/
 Daisy.Sample/obj/
+Daisy.Sample/bin/
+Daisy.Launcher/obj
+Daisy.Launcher/bin/
 Daisy/obj/
+Daisy/bin/
