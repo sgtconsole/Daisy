@@ -2,10 +2,11 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Hijack
+namespace Daisy
 {
     public partial class Injector
     {
@@ -19,12 +20,25 @@ namespace Hijack
             LoadBootstrapper();
         }
 
+        private string _bootstrapperName;
         private string BootstrapperName
         {
             get
             {
-                var fi = new FileInfo("bootstrapper.dll");
-                return fi.FullName;
+
+                if (_bootstrapperName != null) return _bootstrapperName;
+
+                var tempFileName = $"{Path.GetTempPath()}{Guid.NewGuid():N}.dll";
+                using (var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("Daisy.Libs.Bootstrap.dll"))
+                {
+                    using (var file = new FileStream(tempFileName, FileMode.Create, FileAccess.Write))
+                    {
+                        resource.CopyTo(file);
+                    }
+                }
+
+                _bootstrapperName = tempFileName;
+                return _bootstrapperName;
             }
         }
 
@@ -78,18 +92,21 @@ namespace Hijack
         }
 
 
-        public void Invoke(string assemblyPath)
+        public void Invoke(Type type, string methodName, string argument)
         {
-            const string bootstrapperEntryPoint = "LoadManagedProject";
+            const string bootstrapperEntryPoint = "ImplantDotNetAssembly";
+            
+            var assemblyLocation = CreateReadableFile(type.Assembly.Location);
+            var methodInfo = $"{assemblyLocation}\t{type.FullName}\t{methodName}\t{argument}";
+            
+            var bootstrapperInstanceName = new FileInfo(BootstrapperName).Name;
+            var mod = Process.GetProcessById(_processId).Modules.Cast<ProcessModule>()
+                .Single(pm => pm.ModuleName.Contains(bootstrapperInstanceName));
 
             var procOffset = GetProcedureOffset(BootstrapperName, bootstrapperEntryPoint);
-
-            var mod = Process.GetProcessById(_processId).Modules.Cast<ProcessModule>()
-                .Single(pm => pm.ModuleName.Contains("bootstrapper"));
-           
             var procAddress = IntPtr.Add(mod.BaseAddress, procOffset);
-            var argumentAllocation = WriteString(_targetProcessHandle, assemblyPath,Encoding.Unicode);
-
+            var argumentAllocation = WriteString(_targetProcessHandle, methodInfo, Encoding.Unicode);
+            
             var loadLibraryThread = CreateRemoteThread(
                 _targetProcessHandle,
                 _nullPtr,
@@ -102,6 +119,13 @@ namespace Hijack
             GetExitCodeThread(loadLibraryThread, out _);
             VirtualFreeEx(_targetProcessHandle, argumentAllocation, 0, AllocationType.Release);
 
+        }
+
+        private string CreateReadableFile(string path)
+        {
+            var tempFileName = $"{Path.GetTempPath()}{Guid.NewGuid():N}.asm";
+            File.Copy(path, tempFileName);
+            return tempFileName;
         }
 
         private int GetProcedureOffset(string libName, string procedureName)

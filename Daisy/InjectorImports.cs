@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+
 //ReSharper disable all
-namespace Hijack
+namespace Daisy
 {
     public partial class Injector
     {
