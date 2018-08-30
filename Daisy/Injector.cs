@@ -92,7 +92,7 @@ namespace Daisy
         }
 
 
-        public void Invoke(Type type, string methodName, string argument)
+        internal void Invoke(Type type, string methodName, string argument)
         {
             const string bootstrapperEntryPoint = "ImplantDotNetAssembly";
             
