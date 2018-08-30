@@ -85,5 +85,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Libs\Bootstrap.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Daisy.nuspec" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

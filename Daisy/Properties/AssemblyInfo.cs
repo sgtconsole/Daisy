@@ -1,16 +1,14 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Hijack")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Daisy")]
+[assembly: AssemblyDescription("A lightweight framework for injecting and executing .Net assemblies inside unmanaged processes")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Hijack")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyProduct("Daisy")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
