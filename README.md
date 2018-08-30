@@ -1,6 +1,9 @@
 # Daisy
 A framework for injecting and executing .Net assemblies into unmanaged processes
 
+## Project Status
+[![Build status](https://ci.appveyor.com/api/projects/status/i2y9w1v4u5my8dry?svg=true)](https://ci.appveyor.com/project/tomcook82/daisy)
+
 ## Summary
 Daisy is an educational lightweight framework which demonstrates how to inject and execute managed code into a running unmanaged process. It achieves this by doing the following:
 
